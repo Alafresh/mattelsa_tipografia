@@ -33,23 +33,18 @@ controls.maxPolarAngle = Math.PI / 2 + 0.05
 // --- ILUMINACIÓN ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
-
 const dirLight = new THREE.DirectionalLight(0xffffff, 1.2)
-dirLight.position.set(10, 20, 10)
+dirLight.position.set(10, 10, 10)
 dirLight.castShadow = true
 dirLight.shadow.mapSize.width = 2048
 dirLight.shadow.mapSize.height = 2048
 scene.add(dirLight)
 
-const pointLight = new THREE.PointLight(0xa2cc38, 2.0, 25)
-pointLight.position.set(0, 2, 5)
-scene.add(pointLight)
-
 // --- 1. CARGA DE TEXTURAS MATCAP ---
 const textureLoader = new THREE.TextureLoader()
 
-const matcapBrutalistTexture = textureLoader.load('/assets/2.png')
-const matcapFriendlyTexture = textureLoader.load('/assets/7.png')
+const matcapBrutalistTexture = textureLoader.load('/assets/1.png')
+const matcapFriendlyTexture = textureLoader.load('/assets/5.png')
 
 // --- 2. CREACIÓN DE MATERIALES MATCAP ---
 // Estilo Brutalista (Metal Cromo)
@@ -223,7 +218,7 @@ btnReset?.addEventListener('click', () => {
   letterMeshes.forEach((mesh) => {
     mesh.userData.isFriendly = false
     mesh.geometry = mesh.userData.brutalistGeo
-    mesh.material = metallicMaterial.clone()
+    mesh.material = brutalistMaterial
     mesh.userData.targetPos.copy(mesh.userData.homePos)
     mesh.userData.targetRot.set(0, 0, 0)
   })
