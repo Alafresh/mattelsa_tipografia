@@ -81,9 +81,9 @@ grassField.setDensity(0)
 
 // 🌊 Instancia de la Cascada
 const waterfall = new Waterfall(scene, {
-  count: 7000,
-  spawnHeight: 8.5,
-  floorY: -3.0,
+  colorBase: 0x3399ff, // Azul turquesa cristalino
+  colorMid: 0x0077b6, // Azul medio del Physarum
+  colorFoam: 0xbef8fe, // Blanco
 })
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
