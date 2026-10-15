@@ -6,6 +6,7 @@ import { FluffyGrass } from './Fluffygrass.js'
 import { Waterfall } from './Waterfall.js'
 import { Trees } from './Trees.js'
 import { Rabbit } from './Rabbit.js'
+import { Bird } from './Bird.js'
 
 // --- CONFIGURACIÓN PRINCIPAL DE THREE.JS ---
 const container = document.getElementById('webgl-container')
@@ -109,6 +110,17 @@ const rabbit = new Rabbit(scene, {
   radiusZ: 4.5, // Radio amplio en profundidad
   floorY: -2.95,
   scale: 0.8,
+})
+
+// --- INSTANCIACIÓN DEL PÁJARO ---
+const bird = new Bird(scene, {
+  modelPath: '/assets/Pajaro.glb',
+  animationName: 'Fly',
+  position: new THREE.Vector3(1.8, 0.8, 0.0), // Ajusta la altura sobre la letra L
+  scale: 0.6,
+  radiusX: 1.8,
+  radiusZ: 1.2,
+  flySpeed: 1.8,
 })
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
@@ -258,6 +270,18 @@ window.addEventListener('pointerdown', (e) => {
           : 'Estado industrial restaurado.',
       )
     }
+    // 🕊️ 6. LETRA 'L' (índice 5): Activa/Desactiva el Vuelo del Martín Pescador
+    if (selectedMesh.userData.index === 5) {
+      bird.setActive(selectedMesh.userData.isFriendly)
+      updateStatus(
+        selectedMesh.userData.isFriendly
+          ? 'Fauna Aérea Activada'
+          : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '🕊️ El Martín Pescador sobrevuela la letra L.'
+          : 'Estado industrial restaurado.',
+      )
+    }
   }
 })
 
@@ -281,6 +305,7 @@ btnReset?.addEventListener('click', () => {
     tree1.setActive(false)
     tree2.setActive(false)
     rabbit.setActive(false)
+    bird.setActive(false)
   })
   grassField.setDensity(0.0)
   waterfall.setActive(false) // 👈 Apagar cascada en reset
@@ -299,6 +324,7 @@ function animate() {
   tree1.update()
   tree2.update()
   rabbit.update(delta)
+  bird.update(delta)
   controls.update()
 
   letterMeshes.forEach((mesh) => {
