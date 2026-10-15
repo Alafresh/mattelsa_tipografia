@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { FluffyGrass } from './Fluffygrass.js'
+import { Waterfall } from './Waterfall.js' //
 
 // --- CONFIGURACIÓN PRINCIPAL DE THREE.JS ---
 const container = document.getElementById('webgl-container')
@@ -77,6 +78,13 @@ const grassField = new FluffyGrass(scene, {
   colorTip: new THREE.Color(0xa2cc38),
 })
 grassField.setDensity(0)
+
+// 🌊 Instancia de la Cascada
+const waterfall = new Waterfall(scene, {
+  count: 7000,
+  spawnHeight: 8.5,
+  floorY: -3.0,
+})
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
 const letterGroup = new THREE.Group()
@@ -182,6 +190,18 @@ window.addEventListener('pointerdown', (e) => {
         grassField.setDensity(0.0)
       }
     }
+    // 🌊 PRIMERA 'A' (índice 1): Activa/Desactiva Cascada
+    if (selectedMesh.userData.index === 1) {
+      waterfall.setActive(selectedMesh.userData.isFriendly)
+      updateStatus(
+        selectedMesh.userData.isFriendly
+          ? 'Cascada Activada'
+          : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '🌊 El agua fluye sobre las letras del ecosistema.'
+          : 'Estado industrial restaurado.',
+      )
+    }
   }
 })
 
@@ -193,6 +213,7 @@ function updateStatus(title, text) {
   if (msgElem) msgElem.innerText = text
 }
 
+// --- BOTÓN DE RESET ---
 const btnReset = document.getElementById('btn-reset')
 btnReset?.addEventListener('click', () => {
   letterMeshes.forEach((mesh) => {
@@ -203,6 +224,7 @@ btnReset?.addEventListener('click', () => {
     mesh.userData.targetRot.set(0, 0, 0)
   })
   grassField.setDensity(0.0)
+  waterfall.setActive(false) // 👈 Apagar cascada en reset
   updateStatus('Sistema Reiniciado', 'Modo Streetwear Brutalista Activo.')
 })
 
@@ -211,9 +233,10 @@ const clock = new THREE.Clock()
 
 function animate() {
   requestAnimationFrame(animate)
+  const delta = clock.getDelta()
   const time = clock.getElapsedTime()
-
   grassField.update(time)
+  waterfall.update(delta)
   controls.update()
 
   letterMeshes.forEach((mesh) => {
