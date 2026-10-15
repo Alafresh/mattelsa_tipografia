@@ -5,6 +5,7 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { FluffyGrass } from './Fluffygrass.js'
 import { Waterfall } from './Waterfall.js'
 import { Trees } from './Trees.js'
+import { Rabbit } from './Rabbit.js'
 
 // --- CONFIGURACIÓN PRINCIPAL DE THREE.JS ---
 const container = document.getElementById('webgl-container')
@@ -98,6 +99,16 @@ const tree2 = new Trees(scene, {
   modelPath: '/assets/tree_toon_2.glb',
   position: new THREE.Vector3(8, -2.95, -9), // Ubicado junto a la 2da T
   scale: 1,
+})
+
+// --- INSTANCIACIÓN DEL CONEJO ---
+const rabbit = new Rabbit(scene, {
+  modelPath: '/assets/conejo.glb',
+  texturePath: '/assets/11.png',
+  radiusX: 8.5, // Radio amplio horizontal
+  radiusZ: 4.5, // Radio amplio en profundidad
+  floorY: -2.95,
+  scale: 0.8,
 })
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
@@ -237,6 +248,16 @@ window.addEventListener('pointerdown', (e) => {
           : 'Estado industrial restaurado.',
       )
     }
+    // 🐇 5. LETRA 'E' (índice 4): Activa/Desactiva el Conejo
+    if (selectedMesh.userData.index === 4) {
+      rabbit.setActive(selectedMesh.userData.isFriendly)
+      updateStatus(
+        selectedMesh.userData.isFriendly ? 'Fauna Activada' : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '🐇 El conejo orbita saltando alrededor de la marca.'
+          : 'Estado industrial restaurado.',
+      )
+    }
   }
 })
 
@@ -259,6 +280,7 @@ btnReset?.addEventListener('click', () => {
     mesh.userData.targetRot.set(0, 0, 0)
     tree1.setActive(false)
     tree2.setActive(false)
+    rabbit.setActive(false)
   })
   grassField.setDensity(0.0)
   waterfall.setActive(false) // 👈 Apagar cascada en reset
@@ -276,6 +298,7 @@ function animate() {
   waterfall.update(delta)
   tree1.update()
   tree2.update()
+  rabbit.update(delta)
   controls.update()
 
   letterMeshes.forEach((mesh) => {
