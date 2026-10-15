@@ -111,7 +111,7 @@ const fontLoader = new FontLoader()
 
 // Cargar ambas fuentes de assets
 fontLoader.load('./assets/Montserrat_Regular.json', (fontBrutalist) => {
-  fontLoader.load('./assets/Sour Gummy_Regular.json', (fontFriendly) => {
+  fontLoader.load('./assets/Sour_Gummy_Regular.json', (fontFriendly) => {
     const totalWidth = lettersData.length * 1.8
 
     lettersData.forEach((char, index) => {
