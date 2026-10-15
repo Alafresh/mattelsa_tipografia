@@ -3,7 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { FluffyGrass } from './Fluffygrass.js'
-import { Waterfall } from './Waterfall.js' //
+import { Waterfall } from './Waterfall.js'
+import { Trees } from './Trees.js'
 
 // --- CONFIGURACIÓN PRINCIPAL DE THREE.JS ---
 const container = document.getElementById('webgl-container')
@@ -14,8 +15,8 @@ scene.fog = new THREE.FogExp2(0x0a0a0a, 0.025)
 const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight,
-  0.1,
-  1000,
+  0.5,
+  100,
 )
 camera.position.set(0, 2, 18)
 
@@ -84,6 +85,19 @@ const waterfall = new Waterfall(scene, {
   colorBase: 0x3399ff, // Azul turquesa cristalino
   colorMid: 0x0077b6, // Azul medio del Physarum
   colorFoam: 0xbef8fe, // Blanco
+})
+
+const tree1 = new Trees(scene, {
+  modelPath: '/assets/tree_toon_1.glb',
+  position: new THREE.Vector3(-8, -2.95, -8), // Ubicado junto a la 1ra T
+  scale: 1,
+})
+
+// Árbol 2: Asociado a la segunda 'T' (índice 3)
+const tree2 = new Trees(scene, {
+  modelPath: '/assets/tree_toon_2.glb',
+  position: new THREE.Vector3(8, -2.95, -9), // Ubicado junto a la 2da T
+  scale: 1,
 })
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
@@ -202,6 +216,27 @@ window.addEventListener('pointerdown', (e) => {
           : 'Estado industrial restaurado.',
       )
     }
+    // 🌳 3. PRIMERA 'T' (índice 2): Brota el primer tipo de árbol
+    if (selectedMesh.userData.index === 2) {
+      tree1.setActive(selectedMesh.userData.isFriendly)
+      updateStatus(
+        selectedMesh.userData.isFriendly ? 'Reserva Magara' : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '🌳 Nace la primera especie de árbol del Bosque Seco Tropical.'
+          : 'Estado industrial restaurado.',
+      )
+    }
+
+    // 🌲 4. SEGUNDA 'T' (índice 3): Brota el segundo tipo de árbol
+    if (selectedMesh.userData.index === 3) {
+      tree2.setActive(selectedMesh.userData.isFriendly)
+      updateStatus(
+        selectedMesh.userData.isFriendly ? 'Reserva Makuk' : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '🌲 Nace la segunda especie de árbol de la reserva.'
+          : 'Estado industrial restaurado.',
+      )
+    }
   }
 })
 
@@ -222,6 +257,8 @@ btnReset?.addEventListener('click', () => {
     mesh.material = brutalistMaterial
     mesh.userData.targetPos.copy(mesh.userData.homePos)
     mesh.userData.targetRot.set(0, 0, 0)
+    tree1.setActive(false)
+    tree2.setActive(false)
   })
   grassField.setDensity(0.0)
   waterfall.setActive(false) // 👈 Apagar cascada en reset
@@ -237,6 +274,8 @@ function animate() {
   const time = clock.getElapsedTime()
   grassField.update(time)
   waterfall.update(delta)
+  tree1.update()
+  tree2.update()
   controls.update()
 
   letterMeshes.forEach((mesh) => {
