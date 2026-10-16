@@ -8,12 +8,27 @@ import { Trees } from './Trees.js'
 import { Rabbit } from './Rabbit.js'
 import { Bird } from './Bird.js'
 import { BirdFlock } from './BirdFlock.js'
+import { Fireflies } from './Fireflies.js'
 
 // --- CONFIGURACIÓN PRINCIPAL DE THREE.JS ---
 const container = document.getElementById('webgl-container')
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x0a0a0a)
-scene.fog = new THREE.FogExp2(0x0a0a0a, 0.025)
+// --- CARGA DE SKYBOX (CUBEMAP) ---
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+const skyboxTexture = cubeTextureLoader.load([
+  '/assets/px.png', // +X
+  '/assets/nx.png', // -X
+  '/assets/py.png', // +Y (Cielo)
+  '/assets/ny.png', // -Y (Suelo)
+  '/assets/pz.png', // +Z
+  '/assets/nz.png', // -Z
+])
+// 💡 1. DECLARACIÓN DE FONDO Y NIEBLA POR DEFECTO
+const defaultBackground = new THREE.Color(0x0a0a0a)
+const defaultFog = new THREE.FogExp2(0x0a0a0a, 0.025)
+
+scene.background = defaultBackground
+scene.fog = defaultFog
 
 const camera = new THREE.PerspectiveCamera(
   45,
@@ -38,10 +53,10 @@ const axesHelper = new THREE.AxesHelper()
 scene.add(axesHelper)
 
 // --- ILUMINACIÓN (SOPORTE PARA SOMBRAS Y AMBIENTE) ---
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
 
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.2)
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.5)
 dirLight.position.set(10, 15, 10)
 dirLight.castShadow = true
 dirLight.shadow.mapSize.width = 2048
@@ -51,7 +66,7 @@ scene.add(dirLight)
 // --- 1. CARGA DE TEXTURAS Y MATERIALES MATCAP ---
 const textureLoader = new THREE.TextureLoader()
 
-const matcapBrutalistTexture = textureLoader.load('/assets/1.png')
+const matcapBrutalistTexture = textureLoader.load('/assets/2.png')
 const matcapFriendlyTexture = textureLoader.load('/assets/5.png')
 
 const brutalistMaterial = new THREE.MeshMatcapMaterial({
@@ -62,18 +77,17 @@ const friendlyMaterial = new THREE.MeshMatcapMaterial({
   matcap: matcapFriendlyTexture,
 })
 
-// --- PISO DE LA ESCENA ---
-const floorGeo = new THREE.PlaneGeometry(100, 100)
-const floorMat = new THREE.MeshStandardMaterial({
-  color: 0x111111,
-  roughness: 0.85,
-  metalness: 0.1,
+// --- CARGA DE TEXTURAS DE SUELO (PRADERA) ---
+const grassAlbedo = textureLoader.load('/assets/Grass_2_Albedo.png')
+const grassNormal = textureLoader.load('/assets/Grass_2_Normal.png')
+
+// Repetición en patrón para cubrir los 100x100 del plano de suelo
+const repeatFactor = 15
+;[grassAlbedo, grassNormal].forEach((tex) => {
+  tex.wrapS = THREE.RepeatWrapping
+  tex.wrapT = THREE.RepeatWrapping
+  tex.repeat.set(repeatFactor, repeatFactor)
 })
-const floor = new THREE.Mesh(floorGeo, floorMat)
-floor.rotation.x = -Math.PI / 2
-floor.position.y = -3
-floor.receiveShadow = true
-scene.add(floor)
 
 // --- INSTANCIACIÓN DE HIERBA (FLUFFY GRASS - INICIA OCULTO) ---
 const grassField = new FluffyGrass(scene, {
@@ -133,6 +147,12 @@ const birdFlock = new BirdFlock(scene, {
   minY: -0.2, // 👈 Ajusta esta altura mínima para mantener a las aves volando bien arriba del pasto
   spawnRadius: 5.0,
   maxSpeed: 3.5,
+})
+// --- INSTANCIACIÓN DE LUCIÉRNAGAS ---
+const fireflies = new Fireflies(scene, {
+  count: 45,
+  position: new THREE.Vector3(0, -0.5, 0.0), // Ajusta la coordenada según la ubicación de tu S
+  radius: 10,
 })
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
@@ -294,6 +314,38 @@ window.addEventListener('pointerdown', (e) => {
           : 'Estado industrial restaurado.',
       )
     }
+    // ✨ 7. LETRA 'S' (índice 6): Activa/Desactiva las Luciérnagas
+    if (selectedMesh.userData.index === 6) {
+      fireflies.setActive(selectedMesh.userData.isFriendly)
+      updateStatus(
+        selectedMesh.userData.isFriendly
+          ? 'Luz Orgánica Activada'
+          : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '✨ Enjambre de luciérnagas flotando sobre la letra S.'
+          : 'Estado industrial restaurado.',
+      )
+    }
+    // 🌌 8. ÚLTIMA 'A' (índice 7): Activa/Desactiva el Skybox y el Suelo de Pradera
+    if (selectedMesh.userData.index === 7) {
+      if (selectedMesh.userData.isFriendly) {
+        scene.background = skyboxTexture
+        scene.fog = null
+        floor.material = friendlyFloorMat // 🌸 Cambia el suelo a hierba florecida
+      } else {
+        scene.background = defaultBackground
+        scene.fog = defaultFog
+      }
+
+      updateStatus(
+        selectedMesh.userData.isFriendly
+          ? 'Ecosistema Completo Activado'
+          : 'Modo Streetwear',
+        selectedMesh.userData.isFriendly
+          ? '🌌 Cielorrama vivo y pradera detallada integrados en la escena.'
+          : 'Estado industrial restaurado.',
+      )
+    }
   }
 })
 
@@ -304,26 +356,6 @@ function updateStatus(title, text) {
   if (modeElem) modeElem.innerText = title
   if (msgElem) msgElem.innerText = text
 }
-
-// --- BOTÓN DE RESET ---
-const btnReset = document.getElementById('btn-reset')
-btnReset?.addEventListener('click', () => {
-  letterMeshes.forEach((mesh) => {
-    mesh.userData.isFriendly = false
-    mesh.geometry = mesh.userData.brutalistGeo
-    mesh.material = brutalistMaterial
-    mesh.userData.targetPos.copy(mesh.userData.homePos)
-    mesh.userData.targetRot.set(0, 0, 0)
-    tree1.setActive(false)
-    tree2.setActive(false)
-    rabbit.setActive(false)
-    bird.setActive(false)
-    birdFlock.setActive(false)
-  })
-  grassField.setDensity(0.0)
-  waterfall.setActive(false) // 👈 Apagar cascada en reset
-  updateStatus('Sistema Reiniciado', 'Modo Streetwear Brutalista Activo.')
-})
 
 // --- BUCLE DE ANIMACIÓN Y RENDER ---
 const clock = new THREE.Clock()
@@ -339,6 +371,7 @@ function animate() {
   rabbit.update(delta)
   bird.update(delta)
   birdFlock.update(delta)
+  fireflies.update(time)
   controls.update()
 
   letterMeshes.forEach((mesh) => {

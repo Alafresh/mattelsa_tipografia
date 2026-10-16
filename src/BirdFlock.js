@@ -271,7 +271,7 @@ export class BirdFlock {
     const distToCenter = targetDir.length()
     let centerAttraction = new THREE.Vector3()
 
-    if (distToCenter > 5.0) {
+    if (distToCenter > 4.0) {
       centerAttraction = targetDir
         .normalize()
         .multiplyScalar(this.maxSpeed)
