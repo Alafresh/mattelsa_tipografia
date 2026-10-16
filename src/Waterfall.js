@@ -120,7 +120,7 @@ const MistParticleShader = {
 export class Waterfall {
   constructor(scene, options = {}) {
     this.scene = scene
-    this.spawnHeight = options.spawnHeight || 8.5
+    this.spawnHeight = options.spawnHeight || 20
     this.floorY = options.floorY || -2.95
     this.width = options.width || 7.4
 
