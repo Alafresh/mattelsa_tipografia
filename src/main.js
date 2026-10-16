@@ -120,7 +120,7 @@ const tree2 = new Trees(scene, {
 // --- INSTANCIACIÓN DEL CONEJO ---
 const rabbit = new Rabbit(scene, {
   modelPath: '/assets/conejo.glb',
-  texturePath: '/assets/11.png',
+  texturePath: '/assets/9.png',
   radiusX: 8.5, // Radio amplio horizontal
   radiusZ: 4.5, // Radio amplio en profundidad
   floorY: -2.95,
