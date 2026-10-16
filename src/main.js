@@ -331,7 +331,6 @@ window.addEventListener('pointerdown', (e) => {
       if (selectedMesh.userData.isFriendly) {
         scene.background = skyboxTexture
         scene.fog = null
-        floor.material = friendlyFloorMat // 🌸 Cambia el suelo a hierba florecida
       } else {
         scene.background = defaultBackground
         scene.fog = defaultFog
