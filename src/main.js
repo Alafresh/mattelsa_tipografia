@@ -7,6 +7,7 @@ import { Waterfall } from './Waterfall.js'
 import { Trees } from './Trees.js'
 import { Rabbit } from './Rabbit.js'
 import { Bird } from './Bird.js'
+import { BirdFlock } from './BirdFlock.js'
 
 // --- CONFIGURACIÓN PRINCIPAL DE THREE.JS ---
 const container = document.getElementById('webgl-container')
@@ -121,6 +122,17 @@ const bird = new Bird(scene, {
   radiusX: 1.8,
   radiusZ: 1.2,
   flySpeed: 1.8,
+})
+
+const birdFlock = new BirdFlock(scene, {
+  modelPath: '/assets/Pajaro.glb',
+  animationName: 'Fly',
+  count: 24,
+  center: new THREE.Vector3(1.8, 1.2, 0.0),
+  scale: 0.5,
+  minY: -0.2, // 👈 Ajusta esta altura mínima para mantener a las aves volando bien arriba del pasto
+  spawnRadius: 5.0,
+  maxSpeed: 3.5,
 })
 
 // --- CARGA DE FUENTES Y MESHES DE MATTELSA ---
@@ -270,15 +282,15 @@ window.addEventListener('pointerdown', (e) => {
           : 'Estado industrial restaurado.',
       )
     }
-    // 🕊️ 6. LETRA 'L' (índice 5): Activa/Desactiva el Vuelo del Martín Pescador
+    // 🕊️ LETRA 'L' (índice 5): Activa/Desactiva la Bandada en Flocking
     if (selectedMesh.userData.index === 5) {
-      bird.setActive(selectedMesh.userData.isFriendly)
+      birdFlock.setActive(selectedMesh.userData.isFriendly)
       updateStatus(
         selectedMesh.userData.isFriendly
-          ? 'Fauna Aérea Activada'
+          ? 'Ecosistema de Aves Activado'
           : 'Modo Streetwear',
         selectedMesh.userData.isFriendly
-          ? '🕊️ El Martín Pescador sobrevuela la letra L.'
+          ? '🕊️ Bandada volando con algoritmo Flocking (Separación, Alineación y Cohesión).'
           : 'Estado industrial restaurado.',
       )
     }
@@ -306,6 +318,7 @@ btnReset?.addEventListener('click', () => {
     tree2.setActive(false)
     rabbit.setActive(false)
     bird.setActive(false)
+    birdFlock.setActive(false)
   })
   grassField.setDensity(0.0)
   waterfall.setActive(false) // 👈 Apagar cascada en reset
@@ -325,6 +338,7 @@ function animate() {
   tree2.update()
   rabbit.update(delta)
   bird.update(delta)
+  birdFlock.update(delta)
   controls.update()
 
   letterMeshes.forEach((mesh) => {
