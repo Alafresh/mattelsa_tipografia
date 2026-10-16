@@ -135,12 +135,43 @@ export class BirdFlock {
   }
 
   /**
-   * Activa/Desactiva la presencia de la bandada con interpolación LERP de escala
+   * Reinicia la posición, velocidad y aceleración de todas las aves al centro de origen
+   */
+  resetFlock() {
+    this.birds.forEach((bird) => {
+      // 1. Reposicionar en un punto aleatorio dentro del radio alrededor de la letra L
+      const pos = new THREE.Vector3(
+        this.center.x + (Math.random() - 0.5) * this.spawnRadius * 2,
+        this.center.y + (Math.random() - 0.5) * this.spawnRadius,
+        this.center.z + (Math.random() - 0.5) * this.spawnRadius * 2,
+      )
+      bird.position.copy(pos)
+      bird.mesh.position.copy(pos)
+
+      // 2. Reiniciar la velocidad con una dirección aleatoria fresca
+      bird.velocity
+        .set(
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 1,
+          (Math.random() - 0.5) * 2,
+        )
+        .normalize()
+        .multiplyScalar(Math.random() * this.maxSpeed)
+
+      // 3. Limpiar aceleraciones acumuladas
+      bird.acceleration.set(0, 0, 0)
+    })
+  }
+
+  /**
+   * Activa/Desactiva la presencia de la bandada con LERP y reseteo de posiciones
    */
   setActive(state) {
     this.active = state
     this.targetScaleVal = state ? this.birdScale : 0.0
+
     if (state) {
+      this.resetFlock() // 👈 REINICIA LAS POSICIONES CADA VEZ QUE SE ACTIVA
       this.flockGroup.visible = true
     }
   }
