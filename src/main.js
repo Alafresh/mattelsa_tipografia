@@ -49,9 +49,6 @@ controls.enableDamping = true
 controls.dampingFactor = 0.05
 controls.maxPolarAngle = Math.PI / 2 + 0.05
 
-const axesHelper = new THREE.AxesHelper()
-scene.add(axesHelper)
-
 // --- ILUMINACIÓN (SOPORTE PARA SOMBRAS Y AMBIENTE) ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
